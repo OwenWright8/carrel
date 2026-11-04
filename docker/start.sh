@@ -77,7 +77,8 @@ echo "[start] postgres is ready"
 echo "[start] preparing the document worker's database role..."
 # The worker (which parses untrusted uploads) connects as its own restricted
 # role, `syllabase_worker`, whose only rights are on the document tables (granted
-# by a migration). The role must exist BEFORE the migrations run, and creating
+# by a migration). It keeps its name from before the rename to Carrel: the
+# migrations that grant it have already run on existing installs. The role must exist BEFORE the migrations run, and creating
 # one needs a superuser. Its password is random and new on every boot: it lives
 # only in this shell and the worker's environment, never on disk, so there is
 # nothing to persist, back up or leak.
@@ -141,8 +142,8 @@ echo "[start] writing runtime frontend config..."
 # frontend). The API address isn't written here at all: the app calls the
 # address it was loaded from. The version and repository let the app show
 # what it is running and link to its release notes.
-export VITE_SUPABASE_PUBLISHABLE_KEY="$ANON_KEY" SYLLABASE_BUILD_VERSION SYLLABASE_REPO
-envsubst '${VITE_SUPABASE_PUBLISHABLE_KEY} ${SYLLABASE_BUILD_VERSION} ${SYLLABASE_REPO}' \
+export VITE_SUPABASE_PUBLISHABLE_KEY="$ANON_KEY" CARREL_BUILD_VERSION CARREL_REPO
+envsubst '${VITE_SUPABASE_PUBLISHABLE_KEY} ${CARREL_BUILD_VERSION} ${CARREL_REPO}' \
   < /app/env.js.template \
   > /app/frontend/env.js
 
@@ -181,7 +182,8 @@ SQLEOF
 # Each backend below is started through `env -u ...` so it only inherits the
 # secrets it actually needs. In particular the Postgres superuser password
 # and the service-role key stay out of the edge runtime, which executes
-# code fetched from esm.sh at run time.
+# code fetched from esm.sh at run time. The JWT issuer keeps the app's name
+# from before the rename to Carrel: changing it would sign everyone out.
 echo "[start] starting gotrue..."
 env -u POSTGRES_PASSWORD -u SERVICE_ROLE_KEY -u ANON_KEY -u CRON_SECRET \
 GOTRUE_API_HOST=0.0.0.0 \
@@ -234,8 +236,8 @@ if [ "$DOC_ENABLED" = true ]; then
   # secrets in its environment (it gets only its own database URL), and a scratch
   # directory nobody else can read. It is restarted if it ever exits, but does
   # not take the app down with it: documents are optional, sign-in isn't.
-  WORKER_UID=$(id -u syllabase-worker)
-  WORKER_GID=$(id -g syllabase-worker)
+  WORKER_UID=$(id -u carrel-worker)
+  WORKER_GID=$(id -g carrel-worker)
   WORKER_DATABASE_URL="postgres://syllabase_worker:${WORKER_DB_PASSWORD}@db:5432/${POSTGRES_DB:-postgres}"
   # Two workers, one per kind of job, so a chapter download is never stuck
   # behind a long OCR.
@@ -244,8 +246,8 @@ if [ "$DOC_ENABLED" = true ]; then
       while :; do
         env -u POSTGRES_PASSWORD -u JWT_SECRET -u SERVICE_ROLE_KEY -u ANON_KEY -u CRON_SECRET \
           WORKER_DATABASE_URL="$WORKER_DATABASE_URL" \
-          WORKER_TMPDIR=/var/lib/syllabase-worker/tmp \
-          HOME=/var/lib/syllabase-worker \
+          WORKER_TMPDIR=/var/lib/carrel-worker/tmp \
+          HOME=/var/lib/carrel-worker \
           setpriv --reuid="$WORKER_UID" --regid="$WORKER_GID" --clear-groups --no-new-privs \
           python3 /app/worker/worker.py "$JOBS" || echo "[start] $JOBS worker exited; restarting in 5s" >&2
         sleep 5
@@ -262,7 +264,7 @@ fi
 rm -f /app/frontend/update.json
 UPDATE_CHECK_PID=""
 if [ "$UPDATE_CHECK_ENABLED" = true ]; then
-  echo "[start] checking for new releases of $SYLLABASE_REPO every 12 hours (running $SYLLABASE_BUILD_VERSION; UPDATE_CHECK=off turns this off)"
+  echo "[start] checking for new releases of $CARREL_REPO every 12 hours (running $CARREL_BUILD_VERSION; UPDATE_CHECK=off turns this off)"
   (
     while :; do
       update_check_once /app/frontend/update.json || echo "[start] couldn't check for a new release (will try again later)" >&2

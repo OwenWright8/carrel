@@ -166,7 +166,7 @@ jobs:
       - name: The version is published and the update check is sane
         run: |
           curl -fsS http://localhost:8080/env.js | grep -q 'APP_VERSION: "dev"'
-          curl -fsS http://localhost:8080/env.js | grep -q 'APP_REPO: "OwenWright8/syllabase"'
+          curl -fsS http://localhost:8080/env.js | grep -q 'APP_REPO: "OwenWright8/carrel"'
           docker compose logs app 2>&1 | grep -q "checking for new releases"
           code=$(curl -sS -o update.json -w '%{http_code}' http://localhost:8080/update.json)
           echo "update.json -> HTTP $code"; cat update.json; echo
@@ -174,7 +174,7 @@ jobs:
             [ "$code" = 200 ]
             python3 -c "import json; d = json.load(open('update.json')); assert d['latest'].startswith('v') and d['url'].startswith('https://github.com/'), d"
           fi
-          docker image inspect -f '{{ index .Config.Labels "org.opencontainers.image.source" }}' "$(docker compose images -q app)" | grep -q 'github.com/OwenWright8/syllabase'
+          docker image inspect -f '{{ index .Config.Labels "org.opencontainers.image.source" }}' "$(docker compose images -q app)" | grep -q 'github.com/OwenWright8/carrel'
 
       - name: Secrets were generated and stored in the volume
         run: |
@@ -270,12 +270,12 @@ jobs:
             done
             [ -n "$pid" ] || { echo "the worker is not running"; exit 1; }
             echo "worker pid $pid runs as: $(stat -c %U /proc/$pid)"
-            [ "$(stat -c %U /proc/$pid)" = "syllabase-worker" ] || { echo "worker is not the unprivileged user"; exit 1; }
+            [ "$(stat -c %U /proc/$pid)" = "carrel-worker" ] || { echo "worker is not the unprivileged user"; exit 1; }
             grep -q "^NoNewPrivs:[[:space:]]*1" /proc/$pid/status || { echo "no_new_privs is not set"; exit 1; }
             if tr "\0" "\n" < /proc/$pid/environ | grep -E "^(POSTGRES_PASSWORD|JWT_SECRET|SERVICE_ROLE_KEY|ANON_KEY|CRON_SECRET)="; then
               echo "a secret is in the worker environment"; exit 1
             fi
-            uid=$(id -u syllabase-worker); gid=$(id -g syllabase-worker)
+            uid=$(id -u carrel-worker); gid=$(id -g carrel-worker)
             if setpriv --reuid=$uid --regid=$gid --clear-groups cat /secrets/jwt_secret >/dev/null 2>&1; then echo "the worker can read /secrets"; exit 1; fi
             if setpriv --reuid=$uid --regid=$gid --clear-groups sh -c "echo x > /app/worker/pwned" 2>/dev/null; then echo "the worker can modify its own code"; exit 1; fi
             echo "sandbox ok: unprivileged, no_new_privs, no secrets in its environment, cannot read /secrets or edit /app"

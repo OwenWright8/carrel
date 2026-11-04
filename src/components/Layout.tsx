@@ -48,7 +48,7 @@ export function Layout({ children }: LayoutProps) {
               to="/"
               className="text-xl font-semibold tracking-tight text-foreground hover:text-primary transition-colors shrink-0"
             >
-              Syllabase
+              Carrel
             </Link>
 
             {/* Desktop Navigation */}

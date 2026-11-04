@@ -20,7 +20,7 @@ export function errorMessage(error: unknown): string {
   // A reverse proxy or gateway error page (413, 502, 504...) arrives as HTML.
   if (/^<(!doctype|html|head|body|\?xml)/i.test(message)) {
     const title = message.match(/<title>([^<]*)<\/title>/i)?.[1]?.trim();
-    return `The server answered with an error page${title ? ` (${title})` : ""} instead of data. If Syllabase is behind a reverse proxy, check its logs and limits.`;
+    return `The server answered with an error page${title ? ` (${title})` : ""} instead of data. If Carrel is behind a reverse proxy, check its logs and limits.`;
   }
   return message.length > 300 ? `${message.slice(0, 300)}…` : message;
 }

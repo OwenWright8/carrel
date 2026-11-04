@@ -2,10 +2,17 @@ import { useCallback, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { APP_VERSION, fetchLatestRelease, isNewer } from "@/lib/version";
 
-const DISMISSED_KEY = "syllabase.dismissedUpdate";
+const DISMISSED_KEY = "carrel.dismissedUpdate";
+// Where it was kept before the app was renamed from Syllabase.
+const OLD_DISMISSED_KEY = "syllabase.dismissedUpdate";
 
 function readDismissed(): string | null {
   try {
+    const old = localStorage.getItem(OLD_DISMISSED_KEY);
+    if (old !== null) {
+      localStorage.setItem(DISMISSED_KEY, old);
+      localStorage.removeItem(OLD_DISMISSED_KEY);
+    }
     return localStorage.getItem(DISMISSED_KEY);
   } catch {
     return null;

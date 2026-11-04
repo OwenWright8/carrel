@@ -13,7 +13,7 @@ export function UpdateBanner() {
       <div className="container mx-auto px-4 py-2 flex items-center gap-3 text-sm">
         <Sparkles className="h-4 w-4 text-primary shrink-0" aria-hidden />
         <p className="flex-1 min-w-0 text-foreground">
-          <span className="font-medium">Syllabase {displayVersion(release.latest)} is available.</span>{" "}
+          <span className="font-medium">Carrel {displayVersion(release.latest)} is available.</span>{" "}
           <span className="text-muted-foreground">You're on {displayVersion(current)}.</span>
         </p>
         <a
