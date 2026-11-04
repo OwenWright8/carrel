@@ -9,12 +9,12 @@
 #
 # Settings (all optional):
 #   UPDATE_CHECK=off            no requests at all, no reminder
-#   SYLLABASE_BUILD_VERSION     baked into the image at build time (the release tag)
-#   SYLLABASE_REPO              owner/name of the repository releases come from
+#   CARREL_BUILD_VERSION     baked into the image at build time (the release tag)
+#   CARREL_REPO              owner/name of the repository releases come from
 #   UPDATE_CHECK_API            base URL of the GitHub API (tests point it at a file)
 
 # Validates the settings and sets UPDATE_CHECK_ENABLED (true/false),
-# SYLLABASE_BUILD_VERSION and SYLLABASE_REPO.
+# CARREL_BUILD_VERSION and CARREL_REPO.
 update_check_settings() {
   case "$(printf '%s' "${UPDATE_CHECK:-on}" | tr '[:upper:]' '[:lower:]')" in
     ""|on|true|1|yes) UPDATE_CHECK_ENABLED=true ;;
@@ -22,15 +22,15 @@ update_check_settings() {
     *) fail "UPDATE_CHECK must be on or off (got '${UPDATE_CHECK}')." ;;
   esac
 
-  SYLLABASE_BUILD_VERSION="${SYLLABASE_BUILD_VERSION:-dev}"
+  CARREL_BUILD_VERSION="${CARREL_BUILD_VERSION:-dev}"
   # Both end up inside a JavaScript string in env.js and in URLs, so only
   # allow the characters a tag or a repository name can actually have.
-  printf '%s' "$SYLLABASE_BUILD_VERSION" | grep -Eq '^[0-9A-Za-z][0-9A-Za-z.+-]{0,63}$' \
-    || fail "SYLLABASE_BUILD_VERSION '${SYLLABASE_BUILD_VERSION}' is not a version (expected something like v1.2.3)."
+  printf '%s' "$CARREL_BUILD_VERSION" | grep -Eq '^[0-9A-Za-z][0-9A-Za-z.+-]{0,63}$' \
+    || fail "CARREL_BUILD_VERSION '${CARREL_BUILD_VERSION}' is not a version (expected something like v1.2.3)."
 
-  SYLLABASE_REPO="${SYLLABASE_REPO:-OwenWright8/syllabase}"
-  printf '%s' "$SYLLABASE_REPO" | grep -Eq '^[A-Za-z0-9_.-]{1,100}/[A-Za-z0-9_.-]{1,100}$' \
-    || fail "SYLLABASE_REPO must look like owner/name (got '${SYLLABASE_REPO}')."
+  CARREL_REPO="${CARREL_REPO:-OwenWright8/carrel}"
+  printf '%s' "$CARREL_REPO" | grep -Eq '^[A-Za-z0-9_.-]{1,100}/[A-Za-z0-9_.-]{1,100}$' \
+    || fail "CARREL_REPO must look like owner/name (got '${CARREL_REPO}')."
 }
 
 # Fetches the latest release once and writes it to $1, replacing the file only
@@ -41,9 +41,10 @@ update_check_once() {
   tmp="$out.tmp.$$"
   api="${UPDATE_CHECK_API:-https://api.github.com}"
   # /releases/latest skips drafts and pre-releases, which is what a reminder wants.
-  if curl -fsS --max-time 20 --proto '=https,file' \
-       -H 'Accept: application/vnd.github+json' -H 'User-Agent: syllabase-update-check' \
-       "$api/repos/$SYLLABASE_REPO/releases/latest" 2>/dev/null \
+  # -L: GitHub answers a renamed repository's old name with a redirect.
+  if curl -fsSL --max-time 20 --proto '=https,file' --proto-redir '=https' \
+       -H 'Accept: application/vnd.github+json' -H 'User-Agent: carrel-update-check' \
+       "$api/repos/$CARREL_REPO/releases/latest" 2>/dev/null \
      | python3 -c '
 import json, re, sys
 release = json.load(sys.stdin)

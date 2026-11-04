@@ -33,8 +33,8 @@ export default defineConfig(({ mode }) => {
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'favicon.png', 'apple-touch-icon.png', 'robots.txt'],
       manifest: {
-        name: 'Syllabase',
-        short_name: 'Syllabase',
+        name: 'Carrel',
+        short_name: 'Carrel',
         description: 'Self-hosted study planning tool for managing assignments, exams, and courses efficiently',
         theme_color: '#598d3f',
         background_color: '#191715',

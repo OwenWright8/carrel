@@ -69,7 +69,7 @@ export default function Auth() {
             toast.error(error.message);
           }
         } else if (isFirstRun) {
-          toast.success("Account created! Welcome to Syllabase.");
+          toast.success("Account created! Welcome to Carrel.");
         } else {
           toast.success("Account created!");
         }
@@ -119,7 +119,7 @@ export default function Auth() {
               <BookOpen className="h-8 w-8 text-primary-foreground" />
             </motion.div>
             <h1 className="text-2xl font-bold text-foreground">
-              {isFirstRun ? "Welcome to Syllabase" : showSignUpFields ? "Create an account" : "Welcome back"}
+              {isFirstRun ? "Welcome to Carrel" : showSignUpFields ? "Create an account" : "Welcome back"}
             </h1>
             <p className="text-muted-foreground mt-1">
               {isFirstRun
@@ -192,7 +192,7 @@ export default function Auth() {
 
         {/* App name */}
         <p className="text-center mt-6 text-sm text-muted-foreground">
-          <span className="text-foreground font-semibold">Syllabase</span>
+          <span className="text-foreground font-semibold">Carrel</span>
           {" "}• Your self-hosted study planner
         </p>
       </motion.div>

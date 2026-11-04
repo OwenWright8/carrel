@@ -8,7 +8,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Syllabase version
+      label: Carrel version
       description: Shown on Profile → About, e.g. v0.7.0.
       placeholder: v0.7.0
     validations:

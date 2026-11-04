@@ -50,7 +50,7 @@ export function AboutSection() {
       <h3 id="about-heading" className="text-lg font-semibold text-foreground mb-1">
         About
       </h3>
-      <p className="text-xs text-muted-foreground mb-4">The version of Syllabase this server runs</p>
+      <p className="text-xs text-muted-foreground mb-4">The version of Carrel this server runs</p>
       <div className="space-y-3">
         <p className="text-sm">
           <span className="text-muted-foreground">Version</span>{" "}

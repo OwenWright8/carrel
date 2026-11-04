@@ -2,18 +2,18 @@
 
 <img src="public/pwa-512x512.png" alt="" width="96" height="96" />
 
-# Syllabase
+# Carrel
 
 **A self-hosted study planner for students juggling courses, homework, labs and exams.**<br/>
 Your data stays on your own server. One `docker compose up -d`, nothing to configure.
 
-[![Latest release](https://img.shields.io/github/v/release/OwenWright8/syllabase?sort=semver&label=release)](https://github.com/OwenWright8/syllabase/releases/latest)
-[![CI](https://img.shields.io/github/actions/workflow/status/OwenWright8/syllabase/ci.yml?branch=main&label=CI)](https://github.com/OwenWright8/syllabase/actions/workflows/ci.yml)
-[![Images on GHCR](https://img.shields.io/badge/images-ghcr.io-2496ED?logo=docker&logoColor=white)](https://github.com/OwenWright8/syllabase/pkgs/container/syllabase)
+[![Latest release](https://img.shields.io/github/v/release/OwenWright8/carrel?sort=semver&label=release)](https://github.com/OwenWright8/carrel/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/OwenWright8/carrel/ci.yml?branch=main&label=CI)](https://github.com/OwenWright8/carrel/actions/workflows/ci.yml)
+[![Images on GHCR](https://img.shields.io/badge/images-ghcr.io-2496ED?logo=docker&logoColor=white)](https://github.com/OwenWright8/carrel/pkgs/container/carrel)
 ![amd64 | arm64](https://img.shields.io/badge/arch-amd64%20%7C%20arm64-555)
-[![MIT license](https://img.shields.io/github/license/OwenWright8/syllabase)](LICENSE)
+[![MIT license](https://img.shields.io/github/license/OwenWright8/carrel)](LICENSE)
 
-[Quickstart](#quickstart) · [Features](#features) · [Settings](#optional-settings) · [Updating](#updating) · [Backups](#backups) · [Release notes](https://github.com/OwenWright8/syllabase/releases)
+[Quickstart](#quickstart) · [Features](#features) · [Settings](#optional-settings) · [Updating](#updating) · [Backups](#backups) · [Release notes](https://github.com/OwenWright8/carrel/releases)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/today-dark.png" />
@@ -22,7 +22,7 @@ Your data stays on your own server. One `docker compose up -d`, nothing to confi
 
 </div>
 
-## Why Syllabase
+## Why Carrel
 
 - **Everything due, in one place.** Today's plan, what's coming up, exams counting down, and how your week is going.
 - **Your textbooks, by the chapter.** Upload a PDF and download just the chapter you need, found automatically from the book's bookmarks or contents page.
@@ -51,7 +51,7 @@ Your data stays on your own server. One `docker compose up -d`, nothing to confi
 
 ## Self-hosting
 
-Syllabase is two containers: `db` (Postgres, extended with a couple of small init scripts GoTrue/PostgREST need — see `Dockerfile.db`), and one `app` container bundling everything else — auth, the REST API, the 5 edge functions, and the frontend, all behind an internal gateway. No external accounts or SaaS dependencies required. Images are published for both `amd64` and `arm64`, so it runs on a Raspberry Pi or other ARM server as well as a regular PC.
+Carrel is two containers: `db` (Postgres, extended with a couple of small init scripts GoTrue/PostgREST need — see `Dockerfile.db`), and one `app` container bundling everything else — auth, the REST API, the 5 edge functions, and the frontend, all behind an internal gateway. No external accounts or SaaS dependencies required. Images are published for both `amd64` and `arm64`, so it runs on a Raspberry Pi or other ARM server as well as a regular PC.
 
 ### Quickstart
 
@@ -60,7 +60,7 @@ Syllabase is two containers: `db` (Postgres, extended with a couple of small ini
 ```yaml
 services:
   db:
-    image: ghcr.io/owenwright8/syllabase-db:latest
+    image: ghcr.io/owenwright8/carrel-db:latest
     restart: unless-stopped
     environment:
       # Optional (see "Optional settings"): leave as they are for automatic setup.
@@ -77,7 +77,7 @@ services:
       retries: 20
 
   app:
-    image: ghcr.io/owenwright8/syllabase:latest
+    image: ghcr.io/owenwright8/carrel:latest
     restart: unless-stopped
     depends_on:
       db:
@@ -137,11 +137,11 @@ None of these are required. Docker Compose reads a `.env` file next to `docker-c
 | `DOCUMENTS` | `off` disables uploading textbooks/syllabi and doesn't start the OCR worker (default `on`). |
 | `DOCUMENT_MAX_FILE_MB`, `DOCUMENT_USER_QUOTA_MB`, `DOCUMENT_MAX_COUNT` | Largest single upload (default 200 MB), total per user (default 1024 MB) and most documents per user (default 200). There is no limit on a PDF's page count. Sign-up is open, so these bound what any one account can store. Each also accepts `unlimited`, sensible on a private instance where you trust everyone with an account. These are only read if your compose file passes them to the `app` service, as the one above does. |
 | `UPDATE_CHECK` | `off` stops the server from checking GitHub for new releases, and hides the update reminder (default `on`). See [Updating](#updating). |
-| `SYLLABASE_VERSION` | Pin to a release (e.g. `v0.7.0`), or to a minor series (e.g. `0.7`, which still gets patch releases) instead of `latest`. |
+| `CARREL_VERSION` | Pin to a release (e.g. `v0.7.0`), or to a minor series (e.g. `0.7`, which still gets patch releases) instead of `latest`. (`SYLLABASE_VERSION`, from before the rename, still works.) |
 
 ### Updating
 
-When a new release comes out, Syllabase tells you: a slim **"Syllabase v0.8.0 is available — What's new"** note appears under the navigation bar, linking to that release's notes. It can be dismissed (it comes back for the next release), and **Profile → About** always shows the version you're running and whether it's current.
+When a new release comes out, Carrel tells you: a slim **"Carrel v0.8.0 is available — What's new"** note appears under the navigation bar, linking to that release's notes. It can be dismissed (it comes back for the next release), and **Profile → About** always shows the version you're running and whether it's current.
 
 To update:
 
@@ -149,11 +149,11 @@ To update:
 docker compose pull && docker compose up -d
 ```
 
-Migrations apply automatically, each in its own transaction. Read the [release notes](https://github.com/OwenWright8/syllabase/releases) first: anything you need to do will be at the top.
+Migrations apply automatically, each in its own transaction. Read the [release notes](https://github.com/OwenWright8/carrel/releases) first: anything you need to do will be at the top.
 
 **How the check works, and turning it off.** Every 12 hours the `app` container makes one anonymous request to GitHub's public API for the latest release and saves the answer for the app. Nothing about your instance or its users is sent, and people's browsers never contact GitHub themselves. Set `UPDATE_CHECK=off` to stop it entirely.
 
-**Pinning a version.** `latest` always moves to the newest release. To decide when upgrades happen, set `SYLLABASE_VERSION` in `.env` to a release such as `v0.7.0`, or to a minor series such as `0.7` to keep getting bug-fix releases automatically but not new features. (Minor-series tags are published from v0.7.0 on.)
+**Pinning a version.** `latest` always moves to the newest release. To decide when upgrades happen, set `CARREL_VERSION` in `.env` to a release such as `v0.7.0`, or to a minor series such as `0.7` to keep getting bug-fix releases automatically but not new features. (Minor-series tags are published from v0.7.0 on.)
 
 **Coming from v0.3.x or earlier** (where you ran `./setup.sh` and edited `.env`)? Nothing needs to change: your existing compose file and `.env` keep working, and `SITE_URL` is no longer used (delete it if you like). If you switch to the new compose file above, keep your `.env` next to it: it holds your database password, and the database refuses to start rather than guess a new one.
 
@@ -167,7 +167,7 @@ A simple way, from the folder with your `docker-compose.yml` (volume names are p
 docker compose stop
 for v in db-data secrets; do
   docker run --rm -v "$(basename "$PWD")_$v":/data -v "$PWD":/backup alpine \
-    tar czf "/backup/syllabase-$v-$(date +%F).tar.gz" -C /data .
+    tar czf "/backup/carrel-$v-$(date +%F).tar.gz" -C /data .
 done
 docker compose start
 ```

@@ -30,7 +30,7 @@ unit.describe("errorMessage", () => {
   unit("a reverse proxy's HTML error page is described, not dumped", () => {
     const html = "<html><head><title>413 Request Entity Too Large</title></head><body><center><h1>413 Request Entity Too Large</h1></center><hr><center>nginx</center></body></html>";
     unitExpect(errorMessage({ message: html })).toBe(
-      "The server answered with an error page (413 Request Entity Too Large) instead of data. If Syllabase is behind a reverse proxy, check its logs and limits."
+      "The server answered with an error page (413 Request Entity Too Large) instead of data. If Carrel is behind a reverse proxy, check its logs and limits."
     );
     unitExpect(errorMessage({ message: "<!DOCTYPE html><html><body>Bad Gateway</body></html>" })).toMatch(/^The server answered with an error page instead of data/);
   });

@@ -11,7 +11,7 @@ name: Release
 # them building anything themselves. A pre-release (v1.0.0-rc.1) gets only its
 # own tag, so nobody on `latest` is moved onto it.
 #
-# The app image is told its own version (SYLLABASE_BUILD_VERSION): it shows it
+# The app image is told its own version (CARREL_BUILD_VERSION): it shows it
 # on the Profile page and compares it with the latest release for the update
 # reminder.
 
@@ -54,8 +54,8 @@ jobs:
 
       - name: Build source archives
         run: |
-          git archive --format=tar.gz --prefix="syllabase-${RELEASE_TAG}/" -o "syllabase-${RELEASE_TAG}.tar.gz" "${RELEASE_TAG}"
-          git archive --format=zip --prefix="syllabase-${RELEASE_TAG}/" -o "syllabase-${RELEASE_TAG}.zip" "${RELEASE_TAG}"
+          git archive --format=tar.gz --prefix="carrel-${RELEASE_TAG}/" -o "carrel-${RELEASE_TAG}.tar.gz" "${RELEASE_TAG}"
+          git archive --format=zip --prefix="carrel-${RELEASE_TAG}/" -o "carrel-${RELEASE_TAG}.zip" "${RELEASE_TAG}"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
@@ -64,8 +64,8 @@ jobs:
           generate_release_notes: true
           prerelease: ${{ contains(env.RELEASE_TAG, '-') }}
           files: |
-            syllabase-*.tar.gz
-            syllabase-*.zip
+            carrel-*.tar.gz
+            carrel-*.zip
 
   docker:
     needs: release
@@ -105,29 +105,23 @@ jobs:
         run: echo "IMAGE_NAMESPACE=$(echo "$REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
       # v1.2.3 -> :v1.2.3, :1.2 and :latest; v1.2.3-rc.1 -> :v1.2.3-rc.1 only.
+      # Also pushed under the pre-rename "syllabase" names, so installs whose
+      # compose file still points there keep getting updates.
       - name: Compute image tags
         id: tags
         run: |
-          {
-            echo "app<<EOF"
-            echo "ghcr.io/${IMAGE_NAMESPACE}/syllabase:${RELEASE_TAG}"
-            if [[ "$RELEASE_TAG" != *-* ]]; then
-              minor=$(echo "${RELEASE_TAG#v}" | cut -d. -f1-2)
-              echo "ghcr.io/${IMAGE_NAMESPACE}/syllabase:${minor}"
-              echo "ghcr.io/${IMAGE_NAMESPACE}/syllabase:latest"
-            fi
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-          {
-            echo "db<<EOF"
-            echo "ghcr.io/${IMAGE_NAMESPACE}/syllabase-db:${RELEASE_TAG}"
-            if [[ "$RELEASE_TAG" != *-* ]]; then
-              minor=$(echo "${RELEASE_TAG#v}" | cut -d. -f1-2)
-              echo "ghcr.io/${IMAGE_NAMESPACE}/syllabase-db:${minor}"
-              echo "ghcr.io/${IMAGE_NAMESPACE}/syllabase-db:latest"
-            fi
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+          tags() {
+            for name in carrel syllabase; do
+              echo "ghcr.io/${IMAGE_NAMESPACE}/${name}$1:${RELEASE_TAG}"
+              if [[ "$RELEASE_TAG" != *-* ]]; then
+                minor=$(echo "${RELEASE_TAG#v}" | cut -d. -f1-2)
+                echo "ghcr.io/${IMAGE_NAMESPACE}/${name}$1:${minor}"
+                echo "ghcr.io/${IMAGE_NAMESPACE}/${name}$1:latest"
+              fi
+            done
+          }
+          { echo "app<<EOF"; tags ""; echo "EOF"; } >> "$GITHUB_OUTPUT"
+          { echo "db<<EOF"; tags "-db"; echo "EOF"; } >> "$GITHUB_OUTPUT"
 
       - name: Build and push app image
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
@@ -137,8 +131,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           build-args: |
-            SYLLABASE_BUILD_VERSION=${{ env.RELEASE_TAG }}
-            SYLLABASE_REPO=${{ github.repository }}
+            CARREL_BUILD_VERSION=${{ env.RELEASE_TAG }}
+            CARREL_REPO=${{ github.repository }}
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
           tags: ${{ steps.tags.outputs.app }}
@@ -153,7 +147,7 @@ jobs:
           # Links the package page on GHCR to this repository (and its README).
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.title=Syllabase database
+            org.opencontainers.image.title=Carrel database
             org.opencontainers.image.licenses=MIT
             org.opencontainers.image.version=${{ env.RELEASE_TAG }}
             org.opencontainers.image.revision=${{ github.sha }}

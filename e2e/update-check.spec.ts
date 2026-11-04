@@ -3,7 +3,7 @@ import { test, expect } from "../playwright-fixture";
 import { installFakeBackend, APP_ORIGIN } from "./support/fakeBackend";
 import { compareVersions, isNewer, parseVersion } from "../src/lib/version";
 
-const NOTES = "https://github.com/OwenWright8/syllabase/releases/tag/v0.7.0";
+const NOTES = "https://github.com/OwenWright8/carrel/releases/tag/v0.7.0";
 
 /**
  * Serve what the app container would: /env.js with this image's version, and
@@ -11,7 +11,7 @@ const NOTES = "https://github.com/OwenWright8/syllabase/releases/tag/v0.7.0";
  */
 async function serveInstance(context: BrowserContext, version: string, latest: Record<string, unknown> | null) {
   await context.route(`${APP_ORIGIN}/env.js`, (route) =>
-    route.fulfill({ contentType: "application/javascript", body: `window.__ENV__ = { APP_VERSION: ${JSON.stringify(version)}, APP_REPO: "OwenWright8/syllabase" };` })
+    route.fulfill({ contentType: "application/javascript", body: `window.__ENV__ = { APP_VERSION: ${JSON.stringify(version)}, APP_REPO: "OwenWright8/carrel" };` })
   );
   await context.route(`${APP_ORIGIN}/update.json`, (route) =>
     latest ? route.fulfill({ contentType: "application/json", body: JSON.stringify(latest) }) : route.fulfill({ status: 404, body: "" })
@@ -27,7 +27,7 @@ test.describe("update reminder", () => {
     await serveInstance(context, "v0.6.0", release("v0.7.0"));
     await page.goto("/");
 
-    await expect(banner(page)).toContainText("Syllabase v0.7.0 is available.");
+    await expect(banner(page)).toContainText("Carrel v0.7.0 is available.");
     await expect(banner(page)).toContainText("You're on v0.6.0.");
     const link = banner(page).getByRole("link", { name: "What's new" });
     await expect(link).toHaveAttribute("href", NOTES);
@@ -94,9 +94,9 @@ test.describe("update reminder", () => {
     await expect(about).toContainText("v0.7.0 is available.");
     await expect(about.getByRole("link", { name: "Release notes for this version" })).toHaveAttribute(
       "href",
-      "https://github.com/OwenWright8/syllabase/releases/tag/v0.6.0"
+      "https://github.com/OwenWright8/carrel/releases/tag/v0.6.0"
     );
-    await expect(about.getByRole("link", { name: "Report a problem" })).toHaveAttribute("href", "https://github.com/OwenWright8/syllabase/issues/new/choose");
+    await expect(about.getByRole("link", { name: "Report a problem" })).toHaveAttribute("href", "https://github.com/OwenWright8/carrel/issues/new/choose");
   });
 
   test("the dev server's own pages (no update.json) don't confuse it", async ({ context, page }) => {

@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Release notes
-    url: https://github.com/OwenWright8/syllabase/releases
+    url: https://github.com/OwenWright8/carrel/releases
     about: What changed in each version, and anything to do before upgrading.
   - name: Self-hosting guide
-    url: https://github.com/OwenWright8/syllabase#self-hosting
+    url: https://github.com/OwenWright8/carrel#self-hosting
     about: Installing, settings, updating and backups.

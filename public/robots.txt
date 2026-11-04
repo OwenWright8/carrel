@@ -1,4 +1,4 @@
-# Syllabase is a private, self-hosted planner: there is nothing here for
+# Carrel is a private, self-hosted planner: there is nothing here for
 # search engines to index. (The gateway also sends X-Robots-Tag: noindex.)
 User-agent: *
 Disallow: /

@@ -52,10 +52,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     # The worker parses untrusted files, so it runs as its own user with a
     # private scratch directory and nothing else to its name.
-    && useradd --system --no-create-home --home-dir /var/lib/syllabase-worker --shell /usr/sbin/nologin syllabase-worker \
-    && mkdir -p /var/lib/syllabase-worker/tmp \
-    && chown -R syllabase-worker:syllabase-worker /var/lib/syllabase-worker \
-    && chmod 700 /var/lib/syllabase-worker
+    && useradd --system --no-create-home --home-dir /var/lib/carrel-worker --shell /usr/sbin/nologin carrel-worker \
+    && mkdir -p /var/lib/carrel-worker/tmp \
+    && chown -R carrel-worker:carrel-worker /var/lib/carrel-worker \
+    && chmod 700 /var/lib/carrel-worker
 
 COPY --from=gotrue-src /usr/local/bin/gotrue /usr/local/bin/gotrue
 COPY --from=postgrest-src /bin/postgrest /usr/local/bin/postgrest
@@ -80,15 +80,15 @@ RUN chmod +x /app/start.sh /app/migrate.sh
 # app (Profile → About) and used by the update reminder. The release workflow
 # passes the tag; a local build is "dev". Declared last so changing them
 # doesn't invalidate the layers above.
-ARG SYLLABASE_BUILD_VERSION=dev
-ARG SYLLABASE_REPO=OwenWright8/syllabase
-ENV SYLLABASE_BUILD_VERSION=$SYLLABASE_BUILD_VERSION \
-    SYLLABASE_REPO=$SYLLABASE_REPO
-LABEL org.opencontainers.image.title="Syllabase" \
+ARG CARREL_BUILD_VERSION=dev
+ARG CARREL_REPO=OwenWright8/carrel
+ENV CARREL_BUILD_VERSION=$CARREL_BUILD_VERSION \
+    CARREL_REPO=$CARREL_REPO
+LABEL org.opencontainers.image.title="Carrel" \
       org.opencontainers.image.description="A self-hosted study and homework planner" \
-      org.opencontainers.image.version=$SYLLABASE_BUILD_VERSION \
+      org.opencontainers.image.version=$CARREL_BUILD_VERSION \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.source="https://github.com/${SYLLABASE_REPO}"
+      org.opencontainers.image.source="https://github.com/${CARREL_REPO}"
 
 EXPOSE 8080
 # Probes GoTrue through the gateway, not just nginx: nginx serves the static

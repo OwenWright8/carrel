@@ -6,7 +6,7 @@
 // ask GitHub themselves. Outside the Docker image (`npm run dev`) the version
 // is "dev" and there is no update.json.
 
-const DEFAULT_REPO = "OwenWright8/syllabase";
+const DEFAULT_REPO = "OwenWright8/carrel";
 
 // (Guarded so the pure helpers below can also be imported outside a browser.)
 // (The type is spelled out here because the e2e specs import this file without runtimeConfig.ts.)

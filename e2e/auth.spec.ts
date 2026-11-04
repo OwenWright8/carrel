@@ -42,6 +42,6 @@ test.describe("/auth", () => {
   test("a brand-new instance offers to create the first account", async ({ context, page }) => {
     await installFakeBackend(context, { signedIn: false, hasAccounts: false });
     await page.goto("/auth");
-    await expect(page.getByRole("heading", { name: "Welcome to Syllabase" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Welcome to Carrel" })).toBeVisible();
   });
 });

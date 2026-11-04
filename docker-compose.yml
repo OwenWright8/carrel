@@ -1,4 +1,4 @@
-# Syllabase — a self-hosted study planner.
+# Carrel — a self-hosted study planner.
 #
 #     docker compose up -d
 #
@@ -34,7 +34,7 @@ services:
   db:
     # Extends supabase/postgres (see Dockerfile.db). `docker compose up -d`
     # pulls the prebuilt image; `docker compose build` builds it from source.
-    image: ${SYLLABASE_IMAGE_REPO:-ghcr.io/owenwright8/syllabase}-db:${SYLLABASE_VERSION:-latest}
+    image: ${CARREL_IMAGE_REPO:-${SYLLABASE_IMAGE_REPO:-ghcr.io/owenwright8/carrel}}-db:${CARREL_VERSION:-${SYLLABASE_VERSION:-latest}}
     build:
       context: .
       dockerfile: Dockerfile.db
@@ -58,7 +58,7 @@ services:
       retries: 20
 
   app:
-    image: ${SYLLABASE_IMAGE_REPO:-ghcr.io/owenwright8/syllabase}:${SYLLABASE_VERSION:-latest}
+    image: ${CARREL_IMAGE_REPO:-${SYLLABASE_IMAGE_REPO:-ghcr.io/owenwright8/carrel}}:${CARREL_VERSION:-${SYLLABASE_VERSION:-latest}}
     build:
       context: .
       dockerfile: Dockerfile
