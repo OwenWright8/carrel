@@ -29,9 +29,9 @@ export function QuickStatsBento({
     {
       label: "Today",
       value: `${completedToday}/${totalToday}`,
-      sub: overdueCount > 0 ? `${overdueCount} overdue` : `${todayProgress}% done`,
+      sub: overdueCount > 0 ? `${overdueCount} overdue` : totalToday === 0 ? "nothing due" : `${todayProgress}% done`,
       subClass: overdueCount > 0 ? "text-destructive" : "text-muted-foreground",
-      icon: todayProgress === 100 ? Flame : CheckCircle2,
+      icon: totalToday > 0 && todayProgress === 100 ? Flame : CheckCircle2,
     },
     {
       label: "This Week",
