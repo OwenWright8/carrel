@@ -191,6 +191,7 @@ Push notifications go through [Pushover](https://pushover.net) — each person b
 ## Features
 
 ### 🗓 Today View
+- A new account starts with three getting-started steps: add your courses, upload a syllabus and textbook, add what's due.
 - Shows everything scheduled for the selected day, plus your ordered "plan" for the day.
 - At-a-glance stats: due today, week progress, term totals.
 - A 7-day activity chart and streak tracking.
@@ -226,6 +227,7 @@ Push notifications go through [Pushover](https://pushover.net) — each person b
 
 ### 👤 Accounts
 - Username/password accounts. The first visit to a fresh instance creates the first account; after that it's a normal sign in / sign up screen.
+- New accounts start in the timezone of the device they're created on (change it on the Profile page).
 - Change your password from the Profile page once logged in.
 
 ### 🔌 Homepage widget

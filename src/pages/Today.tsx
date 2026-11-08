@@ -5,7 +5,9 @@ import { CompactTaskItem } from "@/components/today/CompactTaskItem";
 import { QuickStatsBento } from "@/components/today/QuickStatsBento";
 import { ActivityHeatmap } from "@/components/today/ActivityHeatmap";
 import { ComingUpSection } from "@/components/today/ComingUpSection";
-import { BentoEmptyState } from "@/components/today/BentoEmptyState";
+import { BentoEmptyState, GettingStarted } from "@/components/today/BentoEmptyState";
+import { useCourses } from "@/hooks/useCourses";
+import { cn } from "@/lib/utils";
 import { BentoExamCountdown } from "@/components/today/BentoExamCountdown";
 import { FloatingActionButton, QuickAddKind } from "@/components/today/FloatingActionButton";
 import { QuickAddDialogs } from "@/components/today/QuickAddDialogs";
@@ -34,7 +36,7 @@ function getGreeting(): { text: string; icon: typeof Sun } {
 }
 
 export default function Today() {
-  const { loading } = useUserTimezone();
+  const { loading, timezone } = useUserTimezone();
 
   // The selected date and week below are derived once, from the timezone, on
   // first render. Waiting for the profile's timezone (instead of starting from
@@ -50,7 +52,9 @@ export default function Today() {
     );
   }
 
-  return <TodayView />;
+  // Keyed by timezone so a change (e.g. a new account's timezone landing just
+  // after sign-up) re-derives the selected day.
+  return <TodayView key={timezone} />;
 }
 
 function TodayView() {
@@ -58,6 +62,7 @@ function TodayView() {
   const { data: allTasks = [], isLoading } = useUserTasks();
   const { data: upcomingExams = [] } = useUpcomingExams();
   const { data: upcomingQuizzes = [] } = useUpcomingQuizzes();
+  const { data: courses = [], isLoading: coursesLoading } = useCourses();
   const markTaskDone = useMarkTaskDone();
   const [selectedDate, setSelectedDate] = useState(nowInTimezone(timezone));
   const [weekStart, setWeekStart] = useState(startOfWeek(nowInTimezone(timezone)));
@@ -294,6 +299,10 @@ function TodayView() {
     planEntries.length > 0 ||
     dateClassified.overdue.length > 0 || dateClassified.dueOnDate.length > 0 || dateClassified.scheduledToday.length > 0;
 
+  // A brand-new account (no assignments, ever) gets the getting-started steps
+  // instead of a misleading "You're all caught up".
+  const isNewAccount = !coursesLoading && allTasks.length === 0 && planEntries.length === 0;
+
   if (isLoading) {
     return (
       <Layout>
@@ -345,7 +354,7 @@ function TodayView() {
         </AnimatePresence>
 
         {/* Stats strip */}
-        {isSelectedToday && (
+        {isSelectedToday && !isNewAccount && (
           <div className="mb-8">
             <QuickStatsBento
               completedToday={stats.completedToday}
@@ -361,9 +370,18 @@ function TodayView() {
         {/* Calm, linear layout: single focus column + a slim sidebar */}
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main column */}
-          <div className="flex-1 min-w-0 space-y-5 order-2 lg:order-1">
-            {!hasTodayWork ? (
-              <BentoEmptyState />
+          <div className={cn("flex-1 min-w-0 space-y-5", isNewAccount ? "order-1" : "order-2 lg:order-1")}>
+            {isNewAccount ? (
+              <GettingStarted
+                hasCourses={courses.length > 0}
+                onAddCourse={() => setQuickAdd("course")}
+                onAddAssignment={() => setQuickAdd("assignment")}
+              />
+            ) : !hasTodayWork ? (
+              <BentoEmptyState
+                variant={isSelectedToday && stats.completedToday > 0 ? "caught-up" : "nothing-due"}
+                isToday={isSelectedToday}
+              />
             ) : (
               <>
                 {planEntries.length > 0 && (

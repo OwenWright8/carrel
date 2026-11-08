@@ -23,7 +23,9 @@ export default defineConfig(({ mode }) => {
 
   return {
   server: {
-    host: "::",
+    // Every address, IPv4 and IPv6. ("::" alone fails to start on machines
+    // without IPv6, such as some containers and CI runners.)
+    host: true,
     port: 8080,
     allowedHosts: devAllowedHosts,
   },

@@ -19,6 +19,7 @@ import { SUPABASE_URL } from "@/lib/runtimeConfig";
 import { Clock, CalendarDays } from "lucide-react";
 import { WidgetApiKeySection } from "@/components/WidgetApiKeySection";
 import { AboutSection } from "@/components/AboutSection";
+import { browserTimezone, timezoneOptions } from "@/lib/timezones";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +38,13 @@ interface Profile {
   theme_preference: "light" | "dark" | "system";
   color_theme: string;
   created_at: string;
+}
+
+/** The username someone signs in with (stored by GoTrue as username@accounts.local). */
+function accountUsername(user: { email?: string; user_metadata?: Record<string, unknown> } | null): string {
+  const fromMetadata = user?.user_metadata?.username;
+  if (typeof fromMetadata === "string" && fromMetadata) return fromMetadata;
+  return (user?.email ?? "").replace(/@accounts\.local$/, "");
 }
 
 export default function Profile() {
@@ -98,7 +106,7 @@ export default function Profile() {
             id: user.id,
             email: user.email,
             theme_preference: "system",
-            timezone: "America/New_York",
+            timezone: browserTimezone() ?? "America/New_York",
             color_theme: "sage",
           })
           .select()
@@ -109,7 +117,7 @@ export default function Profile() {
         if (newProfile) {
           setProfile(newProfile as Profile);
           setThemePreference("system");
-          setTimezone("America/New_York");
+          setTimezone(newProfile.timezone || "America/New_York");
           setColorTheme("sage");
           
           // Update color theme in context
@@ -312,8 +320,9 @@ export default function Profile() {
             <h3 className="text-lg font-semibold text-foreground mb-1">Account Information</h3>
             <p className="text-xs text-muted-foreground mb-4">Your account details</p>
             <div>
-              <Label className="text-sm">Email</Label>
-              <Input value={user?.email || ""} disabled className="mt-1 rounded-xl" />
+              <Label className="text-sm">Username</Label>
+              <Input value={accountUsername(user)} disabled className="mt-1 rounded-xl" />
+              <p className="text-xs text-muted-foreground mt-1.5">You sign in with this. It can't be changed.</p>
             </div>
           </div>
 
@@ -344,19 +353,9 @@ export default function Profile() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
-                    <SelectItem value="America/Chicago">Central Time (CT)</SelectItem>
-                    <SelectItem value="America/Denver">Mountain Time (MT)</SelectItem>
-                    <SelectItem value="America/Los_Angeles">Pacific Time (PT)</SelectItem>
-                    <SelectItem value="America/Phoenix">Arizona (MST)</SelectItem>
-                    <SelectItem value="America/Anchorage">Alaska Time (AKT)</SelectItem>
-                    <SelectItem value="Pacific/Honolulu">Hawaii Time (HST)</SelectItem>
-                    <SelectItem value="Europe/London">London (GMT/BST)</SelectItem>
-                    <SelectItem value="Europe/Paris">Paris (CET/CEST)</SelectItem>
-                    <SelectItem value="Asia/Tokyo">Tokyo (JST)</SelectItem>
-                    <SelectItem value="Asia/Shanghai">Shanghai (CST)</SelectItem>
-                    <SelectItem value="Asia/Dubai">Dubai (GST)</SelectItem>
-                    <SelectItem value="Australia/Sydney">Sydney (AEDT/AEST)</SelectItem>
+                    {timezoneOptions(timezone).map((tz) => (
+                      <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

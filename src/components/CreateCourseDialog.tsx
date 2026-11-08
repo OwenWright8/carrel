@@ -91,7 +91,7 @@ export function CreateCourseDialog({ open, onOpenChange }: CreateCourseDialogPro
             <Label htmlFor="semester">Semester</Label>
             <Input
               id="semester"
-              placeholder="e.g. Spring 2024"
+              placeholder="e.g. Spring 2027"
               value={formData.semester}
               onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
               className="mt-1 rounded-xl"

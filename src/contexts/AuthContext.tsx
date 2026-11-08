@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { browserTimezone } from '@/lib/timezones';
 
 interface AuthContextType {
   user: User | null;
@@ -28,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     // Set up auth state listener
@@ -56,13 +59,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (username: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: usernameToEmail(username),
       password,
       options: {
         data: { username: username.trim().toLowerCase() },
       },
     });
+    // The database gives every new profile US Eastern time. Start them on the
+    // device's own timezone instead, so Today opens on the right day for
+    // everyone else; it can still be changed on the Profile page.
+    const timezone = browserTimezone();
+    if (!error && data.session && data.user && timezone) {
+      const { error: tzError } = await supabase.from('profiles').update({ timezone }).eq('id', data.user.id);
+      if (tzError) console.error('Could not set the new account\'s timezone:', tzError);
+      // Today may already have read the profile before this landed.
+      await queryClient.invalidateQueries({ queryKey: ['user-preferences'] });
+    }
     return { error };
   };
 

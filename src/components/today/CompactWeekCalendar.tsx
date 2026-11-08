@@ -37,7 +37,7 @@ export function CompactWeekCalendar({
           <ChevronLeft className="h-4 w-4" />
         </Button>
 
-        <div className="flex-1 flex gap-1.5 justify-center">
+        <div className="flex-1 min-w-0 flex gap-1 sm:gap-1.5 justify-center">
           <AnimatePresence mode="popLayout">
             {days.map((day, index) => {
               const dateKey = format(day, "yyyy-MM-dd");
@@ -56,8 +56,9 @@ export function CompactWeekCalendar({
                   transition={{ duration: 0.18, delay: index * 0.02, ease: EASE_OUT }}
                   onClick={() => onSelectDate(day)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center py-2 px-2.5 sm:py-2.5 sm:px-3.5 rounded-xl transition-smooth",
-                    "min-w-[44px] sm:min-w-[52px]",
+                    "relative flex flex-col items-center justify-center py-2 px-0 sm:py-2.5 sm:px-3.5 rounded-xl transition-smooth",
+                    // Seven days share a phone's width; from sm up each keeps its own size.
+                    "flex-1 min-w-0 max-w-[52px] sm:flex-none sm:max-w-none sm:min-w-[52px]",
                     isSelected
                       ? "bg-primary text-primary-foreground"
                       : isDayToday
